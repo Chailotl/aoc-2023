@@ -12,12 +12,20 @@ fn part_one() {
 	let file = File::open("src/bin/day_0.txt").unwrap();
 	let reader = BufReader::new(file);
 
-	println!("Part One: {}", 0);
+	let mut sum = 0;
+
+	for line in reader.lines().flatten() {}
+
+	println!("Part One: {}", sum);
 }
 
 fn part_two() {
 	let file = File::open("src/bin/day_0.txt").unwrap();
 	let reader = BufReader::new(file);
 
-	println!("Part Two: {}", 0);
+	let mut sum = 0;
+
+	for line in reader.lines().flatten() {}
+
+	println!("Part Two: {}", sum);
 }
