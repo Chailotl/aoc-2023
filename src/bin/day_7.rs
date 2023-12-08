@@ -15,25 +15,21 @@ const RANKS: [char; 13] = [
 	'2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A',
 ];
 
+fn split_string(string: String) -> (String, String) {
+	let split = string.split_once(' ').unwrap();
+	(split.0.to_string(), split.1.to_string())
+}
+
 fn cmp_hand(a: &String, b: &String) -> Ordering {
-	let mut a_type = hand_type(a);
-	let mut b_type = hand_type(b);
+	let a_type = hand_type(a);
+	let b_type = hand_type(b);
 
 	if a_type == b_type {
 		for i in 0..5 {
-			let a_char = RANKS
-				.iter()
-				.position(|&c| c == a.chars().nth(i).unwrap())
-				.unwrap();
-			let b_char = RANKS
-				.iter()
-				.position(|&c| c == b.chars().nth(i).unwrap())
-				.unwrap();
+			let ord = get_rank(a, i).cmp(&get_rank(b, i));
 
-			if a_char != b_char {
-				a_type = a_char as i32;
-				b_type = b_char as i32;
-				break;
+			if ord != Ordering::Equal {
+				return ord;
 			}
 		}
 	}
@@ -42,32 +38,21 @@ fn cmp_hand(a: &String, b: &String) -> Ordering {
 }
 
 fn hand_type(hand: &String) -> i32 {
-	let mut three = 0;
-	let mut two = 0;
+	let structure = string_to_hashmap(hand)
+		.iter()
+		.sorted_by(|a, b| a.1.cmp(&b.1))
+		.map(|x| *x.1)
+		.collect::<Vec<i32>>();
 
-	for (_, count) in string_to_hashmap(hand) {
-		if count == 5 {
-			return 6;
-		} else if count == 4 {
-			return 5;
-		} else if count == 3 {
-			three += 1;
-		} else if count == 2 {
-			two += 1;
-		}
+	match structure[..] {
+		[5] => 6,
+		[1, 4] => 5,
+		[2, 3] => 4,
+		[1, 1, 3] => 3,
+		[1, 2, 2] => 2,
+		[1, 1, 1, 2] => 1,
+		_ => 0,
 	}
-
-	if three == 1 && two == 1 {
-		return 4;
-	} else if three == 1 {
-		return 3;
-	} else if two == 2 {
-		return 2;
-	} else if two == 1 {
-		return 1;
-	}
-
-	0
 }
 
 fn string_to_hashmap(hand: &String) -> HashMap<char, i32> {
@@ -77,6 +62,13 @@ fn string_to_hashmap(hand: &String) -> HashMap<char, i32> {
 	})
 }
 
+fn get_rank(hand: &String, index: usize) -> i32 {
+	RANKS
+		.iter()
+		.position(|&c| c == hand.chars().nth(index).unwrap())
+		.unwrap() as i32
+}
+
 fn part_one() {
 	let file = File::open("src/bin/day_7.txt").unwrap();
 	let reader = BufReader::new(file);
@@ -84,10 +76,7 @@ fn part_one() {
 	let sum = reader
 		.lines()
 		.flatten()
-		.map(|x| {
-			let y = x.split_once(' ').unwrap();
-			(y.0.to_string(), y.1.to_string())
-		})
+		.map(|x| split_string(x))
 		.sorted_by(|a, b| cmp_hand(&a.0, &b.0))
 		.map(|x| (2, x.1.parse::<i32>().unwrap()))
 		.reduce(|acc, e| (acc.0 + 1, acc.1 + e.1 * acc.0))
