@@ -11,10 +11,6 @@ fn main() {
 	part_two();
 }
 
-const RANKS: [char; 13] = [
-	'2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A',
-];
-
 fn split_string(string: String) -> (String, String) {
 	let split = string.split_once(' ').unwrap();
 	(split.0.to_string(), split.1.to_string())
@@ -61,6 +57,10 @@ fn string_to_hashmap(hand: &String) -> HashMap<char, i32> {
 		map
 	})
 }
+
+const RANKS: [char; 13] = [
+	'2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A',
+];
 
 fn get_rank(hand: &String, index: usize) -> i32 {
 	RANKS
